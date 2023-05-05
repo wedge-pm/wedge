@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+
 import React from 'react';
 import {render} from 'ink';
 import yargs from 'yargs';
@@ -9,6 +10,7 @@ import ModelList from './components/ModelList.js';
 import {serveModel} from './model-serving.js';
 import ChatUI from './components/ChatUI.js';
 import ModelInstaller from './components/ModelInstaller.js';
+import {removeModel} from './model-management.js';
 
 yargs(hideBin(process.argv))
 	.scriptName('wedge')
@@ -20,8 +22,8 @@ yargs(hideBin(process.argv))
 				type: 'string',
 				describe: 'Search query',
 			}),
-		argv => {
-			modelIndex.refreshIndex();
+		async argv => {
+			await modelIndex.refreshIndex();
 			render(<ModelList models={modelIndex.queryIndex(argv.query)} />);
 		},
 	)
@@ -33,8 +35,8 @@ yargs(hideBin(process.argv))
 				type: 'boolean',
 				describe: 'List local models only',
 			}),
-		_ => {
-			modelIndex.refreshIndex();
+		async _ => {
+			await modelIndex.refreshIndex();
 			render(<ModelList models={modelIndex.queryIndex()} />);
 		},
 	)
@@ -46,8 +48,8 @@ yargs(hideBin(process.argv))
 				type: 'string',
 				describe: 'Model Name',
 			}),
-		argv => {
-			modelIndex.refreshIndex();
+		async argv => {
+			await modelIndex.refreshIndex();
 			const model = modelIndex.findExact(argv.model!);
 			if (!model) {
 				console.error(
@@ -56,6 +58,19 @@ yargs(hideBin(process.argv))
 			} else {
 				render(<ModelInstaller model={model} />);
 			}
+		},
+	)
+	.command(
+		'uninstall <model>',
+		'Uninstall a model that is currently installed',
+		yargs =>
+			yargs.positional('model', {
+				type: 'string',
+				describe: 'Model Name',
+			}),
+		async argv => {
+			removeModel(argv.model!);
+			console.log(`Model ${argv.model!} uninstalled.`);
 		},
 	)
 	.command(

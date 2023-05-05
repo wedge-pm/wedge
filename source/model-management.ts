@@ -1,4 +1,8 @@
-import {MODELS_DIRECTORY, WEIGHTS_DIRECTORY} from './constants.js';
+import {
+	MODELS_DIRECTORY,
+	WEIGHTS_DIRECTORY,
+	DATA_DIRECTORY,
+} from './constants.js';
 import {download} from './path-resolver.js';
 import * as path from 'path';
 import * as fs from 'fs';
@@ -84,4 +88,13 @@ export async function setupModel(
 			console.log(stderr);
 		}
 	}
+}
+
+export function removeModel(modelName: string) {
+	const modelDir = path.join(MODELS_DIRECTORY, modelName);
+	fs.rmSync(modelDir, {recursive: true, force: true});
+	const weightsDir = path.join(WEIGHTS_DIRECTORY, modelName);
+	fs.rmSync(weightsDir, {recursive: true, force: true});
+	const dataDir = path.join(DATA_DIRECTORY, modelName);
+	fs.rmSync(dataDir, {recursive: true, force: true});
 }

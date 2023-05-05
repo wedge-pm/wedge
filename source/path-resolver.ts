@@ -3,6 +3,8 @@ import * as path from 'path';
 import {promisify} from 'node:util';
 import stream from 'node:stream';
 import got from 'got';
+import git from 'isomorphic-git';
+import http from 'isomorphic-git/http/node/index.js';
 
 const pipeline = promisify(stream.pipeline);
 
@@ -31,6 +33,17 @@ function copyLocal(sourcePath: string, destinationPath: string): void {
 		const destinationFilePath = path.join(destinationPath, sourceFileName);
 		fs.copyFileSync(sourcePath, destinationFilePath);
 	}
+}
+
+async function cloneGit(url: string, destination: string) {
+	await git.clone({
+		fs,
+		http,
+		dir: destination,
+		url: url,
+		singleBranch: true,
+		depth: 1,
+	});
 }
 
 async function fetchHttp(
@@ -66,5 +79,10 @@ export async function download(
 		case 'file':
 			copyLocal(source, destination);
 			break;
+		case 'git':
+			await cloneGit(source, destination);
+			break;
+		default:
+			throw new Error(`Unsupported protocol: ${protocol}`);
 	}
 }

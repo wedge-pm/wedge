@@ -1,9 +1,10 @@
 import * as csv from 'csv/sync';
-import {readFileSync, writeFileSync} from 'fs';
+import {readFileSync} from 'fs';
 import * as path from 'path';
 import {INDEX_DIRECTORY} from './constants.js';
+import {download} from './path-resolver.js';
 
-const INDEX_PATH = path.join(INDEX_DIRECTORY, 'index.csv');
+const INDEX_PATH = path.join(INDEX_DIRECTORY, 'wedge-index.csv');
 
 export interface IndexRow {
 	name: string;
@@ -13,17 +14,11 @@ export interface IndexRow {
 	language: string;
 }
 
-export function refreshIndex() {
-	// TODO: Replace with fetching index from remote
-	const csv_text = readFileSync(
-		'/home/vishnumenon/Documents/data-for-wedge/wedge-index.csv',
-		'utf-8',
+export async function refreshIndex() {
+	await download(
+		'https://pub-535fc53038f743bfbce04a39a59384f9.r2.dev/wedge-index.csv',
+		INDEX_DIRECTORY,
 	);
-
-	const latest_index = csv.parse(csv_text, {
-		columns: true,
-	});
-	writeFileSync(INDEX_PATH, csv.stringify(latest_index, {header: true}));
 }
 
 export function queryIndex(queryString?: string) {
