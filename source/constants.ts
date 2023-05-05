@@ -8,6 +8,8 @@ export const WEIGHTS_DIRECTORY = path.join(WEDGE_DIRECTORY, 'weights');
 export const INDEX_DIRECTORY = path.join(WEDGE_DIRECTORY, 'index');
 export const DATA_DIRECTORY = path.join(WEDGE_DIRECTORY, 'data');
 
+export const PACKAGE_INDEX_URL = 'https://pkg.wedgecli.com/wedge-index.csv';
+
 fs.mkdirSync(MODELS_DIRECTORY, {recursive: true});
 fs.mkdirSync(WEIGHTS_DIRECTORY, {recursive: true});
 fs.mkdirSync(INDEX_DIRECTORY, {recursive: true});

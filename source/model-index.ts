@@ -1,7 +1,7 @@
 import * as csv from 'csv/sync';
 import {readFileSync} from 'fs';
 import * as path from 'path';
-import {INDEX_DIRECTORY} from './constants.js';
+import {INDEX_DIRECTORY, PACKAGE_INDEX_URL} from './constants.js';
 import {download} from './path-resolver.js';
 
 const INDEX_PATH = path.join(INDEX_DIRECTORY, 'wedge-index.csv');
@@ -15,10 +15,7 @@ export interface IndexRow {
 }
 
 export async function refreshIndex() {
-	await download(
-		'https://pub-535fc53038f743bfbce04a39a59384f9.r2.dev/wedge-index.csv',
-		INDEX_DIRECTORY,
-	);
+	await download(PACKAGE_INDEX_URL, INDEX_DIRECTORY);
 }
 
 export function queryIndex(queryString?: string) {
