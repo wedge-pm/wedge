@@ -22,7 +22,7 @@
         nodejs = node;
       };
       # binaries that this tool shells out to at runtime
-      extBins = with pkgs; [kubectl kubernetes-helm git];
+      extBins = with pkgs; [git];
       binPaths = builtins.concatStringsSep ":" (builtins.map (p: "${p}/bin") extBins);
     in rec {
       defaultPackage = package.wedge;
