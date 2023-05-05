@@ -25,8 +25,8 @@
       extBins = with pkgs; [kubectl kubernetes-helm git];
       binPaths = builtins.concatStringsSep ":" (builtins.map (p: "${p}/bin") extBins);
     in rec {
-      defaultPackage = package.wedgecli;
-      package.wedgecli = nl2nix.v2.build {
+      defaultPackage = package.wedge;
+      package.wedge = nl2nix.v2.build {
         src = ./.;
         buildCommands = ["npm run build"];
         installPhase = ''
@@ -45,12 +45,12 @@
           # create a startup script that sets the module resolution
           # path (NODE_PATH) and the PATH to include the binaries
           # that are referenced by this project
-          cat - <<EOF > $out/bin/wedgecli
+          cat - <<EOF > $out/bin/wedge
             export NODE_PATH=${placeholder "out"}/dist/node_modules
             export PATH=${binPaths}:$PATH
             exec ${node}/bin/node ${placeholder "out"}/dist/cli.js "\$@"
           EOF
-          chmod +x $out/bin/wedgecli
+          chmod +x $out/bin/wedge
         '';
         node_modules_attrs = {
           # use a specific version of node
