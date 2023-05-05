@@ -16,20 +16,19 @@
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = nixpkgs.legacyPackages."${system}";
       nl2nix = import npmlock2nix {inherit pkgs;};
-      node = pkgs.nodejs-19_x;
+      node = pkgs.nodejs-14_x;
       nodeModules = nl2nix.node_modules {
         src = ./.;
         nodejs = node;
       };
       # binaries that this tool shells out to at runtime
-      extBins = with pkgs; [git];
+      extBins = with pkgs; [kubectl kubernetes-helm git];
       binPaths = builtins.concatStringsSep ":" (builtins.map (p: "${p}/bin") extBins);
     in rec {
       defaultPackage = package.nodenix;
       package.nodenix = nl2nix.build {
         src = ./.;
-        # buildCommands = ["swc src -d lib --config-file swcrc.json"];
-        buildCommands = ["tsc"];
+        buildCommands = ["swc src -d lib --config-file swcrc.json"];
         installPhase = ''
           # buildCommands are executed in a temp dir; here we
           # move the build outputs into our package dir ($out)
