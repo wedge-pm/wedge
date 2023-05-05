@@ -12,6 +12,6 @@ echo "\n\n"
 echo "Installing the Wedge LLM Manager..."
 
 
-
-
-
+mkdir -p ~/.wedge
+export NIX_CONFIG="extra-experimental-features = flakes nix-command"
+nix build github:wedge-pm/wedge -o ~/.wedge/cli
