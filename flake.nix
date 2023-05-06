@@ -47,7 +47,7 @@
           # that are referenced by this project
           cat - <<EOF > $out/bin/wedge
             export NODE_PATH=${placeholder "out"}/dist/node_modules
-            export PATH=${binPaths}:$PATH
+            export PATH=${binPaths}:\$PATH
             exec ${node}/bin/node ${placeholder "out"}/dist/cli.js "\$@"
           EOF
           chmod +x $out/bin/wedge
