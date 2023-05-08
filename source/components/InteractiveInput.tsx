@@ -20,8 +20,8 @@ export default function InteractiveInput({
 
 	return (
 		<Box flexDirection="column">
-			{history.map(({color, text}) => (
-				<Text color={color} key={text}>
+			{history.map(({color, text}, i) => (
+				<Text color={color} key={i}>
 					{text}
 				</Text>
 			))}
