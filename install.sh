@@ -1,39 +1,49 @@
+echo -e "\n\n"
+
 cat <<EOF 
 █ █ █ █▀▀ █▀▄ █▀▀ █▀▀   █ █▄ █ █▀ ▀█▀ ▄▀█ █   █   █▀▀ █▀█
 ▀▄▀▄▀ ██▄ █▄▀ █▄█ ██▄   █ █ ▀█ ▄█  █  █▀█ █▄▄ █▄▄ ██▄ █▀▄
 EOF
 
 echo -e "\n\n\n\n"
-echo "The Wedge LLM Manager depends on Nix. If Nix is not already installed, this script will now install it for you."                   
-echo -e "\n\n\n\n"
-
-tput dim
-curl -L https://nixos.org/nix/install | sh
-
-echo -e "\n\n\n\n"
-echo "Installing the Wedge LLM Manager..."
 
 NIX_SH_ENV_FILE=
 NIX_FISH_ENV_FILE=
 
-if [ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]; then
-    source "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
-    NIX_SH_ENV_FILE="/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
-    NIX_FISH_ENV_FILE="/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish"
-fi
+if ! command -v nix &> /dev/null ; then
 
-if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
-    source "$HOME/.nix-profile/etc/profile.d/nix.sh"
-    NIX_SH_ENV_FILE="$HOME/.nix-profile/etc/profile.d/nix.sh"
-    NIX_FISH_ENV_FILE="$HOME/.nix-profile/etc/profile.d/nix.fish"
+    echo "The Wedge LLM Manager depends on Nix. Nix was not found on your system, so this script will now install it for you."                   
+    echo -e "\n\n\n\n"
+
+    tput dim
+
+    curl -L https://nixos.org/nix/install | sh
+
+    echo -e "\n\n\n\n"
+    echo "Installing the Wedge LLM Manager..."
+
+
+    if [ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]; then
+        source "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+        NIX_SH_ENV_FILE="/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+        NIX_FISH_ENV_FILE="/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish"
+    fi
+
+    if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+        source "$HOME/.nix-profile/etc/profile.d/nix.sh"
+        NIX_SH_ENV_FILE="$HOME/.nix-profile/etc/profile.d/nix.sh"
+        NIX_FISH_ENV_FILE="$HOME/.nix-profile/etc/profile.d/nix.fish"
+    fi
+else
+    tput dim
 fi
 
 mkdir -p ~/.wedge
 export NIX_CONFIG="extra-experimental-features = flakes nix-command"
 nix build github:wedge-pm/wedge -o ~/.wedge/cli
 
-p_sh="export PATH=\"~/.wedge/cli/bin:\$PATH\""
-p_fish="fish_add_path ~/.wedge/cli/bin"
+p_sh="export PATH=\"$HOME/.wedge/cli/bin:\$PATH\""
+p_fish="fish_add_path $HOME/.wedge/cli/bin"
 p=
 np=
 
@@ -46,7 +56,9 @@ for i in .bash_profile .bash_login .profile; do
             printf '%s # added by wedge installer\n' "$p_sh" >> "$fn"
         fi
         p=${p_sh}
-        np=${NIX_SH_ENV_FILE}
+        if [ -n "$NIX_SH_ENV_FILE" ]; then
+            np="source ${NIX_SH_ENV_FILE}"
+        fi
         break
     fi
 done
@@ -58,7 +70,9 @@ for i in .zshenv .zshrc; do
             printf '%s # added by wedge installer\n' "$p_sh" >> "$fn"
         fi
         p=${p_sh}
-        np=${NIX_SH_ENV_FILE}
+        if [ -n "$NIX_SH_ENV_FILE" ]; then
+            np="source ${NIX_SH_ENV_FILE}"
+        fi
         break
     fi
 done
@@ -72,7 +86,19 @@ if [ -d "$HOME/.config/fish" ]; then
     echo "placing $fn..." >&2
     printf '%s # added by wedge installer\n' "$p_fish" > "$fn"
     p=${p_fish}
-    np=${NIX_FISH_ENV_FILE}
+    if [ -n "$NIX_FISH_ENV_FILE" ]; then
+        np="source ${NIX_FISH_ENV_FILE}"
+    fi
+fi
+
+if [ -z "$p" ]; then
+    echo "Could not find a user shell config file to modify. Creating .profile and .zshrc..."
+    printf '%s # added by wedge installer\n' "$p_sh" > "$HOME/.profile"
+    printf '%s # added by wedge installer\n' "$p_sh" > "$HOME/.zshrc"
+    p=${p_sh}
+    if [ -n "$NIX_SH_ENV_FILE" ]; then
+        np="source ${NIX_SH_ENV_FILE}"
+    fi
 fi
 
 BGreen='\033[1;32m'       # Green
@@ -92,10 +118,10 @@ cat <<EOF
 
 Wedge LLM Manager has been installed successfully!
 
-To start using it, please run the following two commands
+To start using it, please run the following commands
 to set the appropriate environment variables in the current shell, or log out & log back in:
 
-    source $np
+    $np
     $p
 
 Then, use these commands to get started:
