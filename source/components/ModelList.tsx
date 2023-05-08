@@ -4,10 +4,11 @@ import {type IndexRow} from '../model-index.js';
 import ModelInstaller from './ModelInstaller.js';
 
 interface ModelListProps {
-	models: IndexRow[];
+	models: (IndexRow & {installed: boolean})[];
+	installed?: boolean;
 }
 
-export default function ModelList({models}: ModelListProps) {
+export default function ModelList({models, installed}: ModelListProps) {
 	const [selectedModel, setSelectedModel] = React.useState(0);
 	const [installingModel, setInstallingModel] = React.useState<
 		IndexRow | undefined
@@ -23,7 +24,7 @@ export default function ModelList({models}: ModelListProps) {
 				setSelectedModel(Math.min(models.length - 1, selectedModel + 1));
 			}
 
-			if (key.return) {
+			if (key.return && !installed) {
 				setInstallingModel(models[selectedModel]);
 			}
 
@@ -38,22 +39,35 @@ export default function ModelList({models}: ModelListProps) {
 	}
 
 	return (
-		<Box flexDirection="column">
+		<Box flexDirection="column" margin={1}>
 			<Box marginBottom={1}>
 				<Text dimColor inverse>
-					Press 'Enter' / 'Return' to install, or 'q' / 'Esc' to exit.
+					{installed
+						? "Press 'q' / 'Esc' to exit."
+						: "Press 'Enter' / 'Return' to install, or 'q' / 'Esc' to exit."}
 				</Text>
 			</Box>
 			<Box flexDirection="column" flexGrow={1}>
-				{models.map((model, i) => (
-					<Text key={model.name} color={''} inverse={i === selectedModel}>
-						<Text color={'green'}>{model.name}</Text> - {model.description}{' '}
-					</Text>
-				))}
+				{(installed ? models.filter(m => m.installed) : models).map(
+					(model, i) => (
+						<Text
+							key={model.name}
+							color={model.installed ? 'green' : ''}
+							inverse={i === selectedModel}
+						>
+							<Text color={model.installed ? 'green' : 'yellow'}>
+								{model.name}
+							</Text>{' '}
+							- {model.description}{' '}
+						</Text>
+					),
+				)}
 			</Box>
 			<Box marginTop={1}>
 				<Text dimColor inverse>
-					Press 'Enter' / 'Return' to install, or 'q' / 'Esc' to exit.
+					{installed
+						? "Press 'q' / 'Esc' to exit."
+						: "Press 'Enter' / 'Return' to install, or 'q' / 'Esc' to exit."}
 				</Text>
 			</Box>
 		</Box>

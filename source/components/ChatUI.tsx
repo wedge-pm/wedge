@@ -1,4 +1,4 @@
-import {Box, Text} from 'ink';
+import {Box, Text, useApp, useInput} from 'ink';
 import React from 'react';
 import {useEffect, useState} from 'react';
 import {serveModel} from '../model-serving.js';
@@ -14,11 +14,19 @@ export default function ChatUI({modelName}: ChatUIProps) {
 	>([]);
 	const [serverReady, setServerReady] = useState(false);
 	const [serverWorking, setServerWorking] = useState(false);
+	const {exit} = useApp();
 
 	useEffect(() => {
 		serveModel(modelName);
 		setServerReady(true);
 	}, [modelName]);
+
+	useInput((_input, key) => {
+		if (key.escape) {
+			exit();
+			process.exit(0);
+		}
+	});
 
 	async function handleNewInput(entry: string) {
 		setChatHistory(ch => [...ch, {color: 'green', text: entry}]);
@@ -42,12 +50,19 @@ export default function ChatUI({modelName}: ChatUIProps) {
 	}
 
 	return (
-		<Box margin={1} paddingX={1} borderStyle={'single'}>
-			<InteractiveInput
-				history={chatHistory}
-				onAddInputValue={handleNewInput}
-				working={serverWorking}
-			/>
-		</Box>
+		<>
+			<Box margin={1} marginBottom={0} paddingX={1} borderStyle={'single'}>
+				<InteractiveInput
+					history={chatHistory}
+					onAddInputValue={handleNewInput}
+					working={serverWorking}
+				/>
+			</Box>
+			<Box marginX={1} marginBottom={1}>
+				<Text dimColor inverse>
+					{" Press 'Esc' to exit. "}
+				</Text>
+			</Box>
+		</>
 	);
 }

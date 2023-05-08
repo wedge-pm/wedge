@@ -28,7 +28,7 @@
       defaultPackage = package.wedge;
       package.wedge = nl2nix.v2.build {
         src = ./.;
-        buildCommands = ["npm run build"];
+        buildCommands = ["HOME=${mktemp -d} npm run build"];
         installPhase = ''
           # buildCommands are executed in a temp dir; here we
           # move the build outputs into our package dir ($out)

@@ -31,13 +31,18 @@ yargs(hideBin(process.argv))
 		'list',
 		'List all available models',
 		yargs =>
-			yargs.option('local', {
+			yargs.option('installed', {
 				type: 'boolean',
-				describe: 'List local models only',
+				describe: 'List installed models only',
 			}),
-		async _ => {
+		async argv => {
 			await modelIndex.refreshIndex();
-			render(<ModelList models={modelIndex.queryIndex()} />);
+			render(
+				<ModelList
+					models={modelIndex.queryIndex()}
+					installed={argv.installed}
+				/>,
+			);
 		},
 	)
 	.command(

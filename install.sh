@@ -13,11 +13,19 @@ curl -L https://nixos.org/nix/install | sh
 echo -e "\n\n\n\n"
 echo "Installing the Wedge LLM Manager..."
 
-NIX_SH_ENV_FILE="$HOME/.nix-profile/etc/profile.d/nix.sh"
-NIX_FISH_ENV_FILE="$HOME/.nix-profile/etc/profile.d/nix.fish"
+NIX_SH_ENV_FILE=
+NIX_FISH_ENV_FILE=
 
-if [ -f "$NIX_SH_ENV_FILE" ]; then
-    source "$NIX_SH_ENV_FILE"
+if [ -f "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh" ]; then
+    source "/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+    NIX_SH_ENV_FILE="/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.sh"
+    NIX_FISH_ENV_FILE="/nix/var/nix/profiles/default/etc/profile.d/nix-daemon.fish"
+fi
+
+if [ -f "$HOME/.nix-profile/etc/profile.d/nix.sh" ]; then
+    source "$HOME/.nix-profile/etc/profile.d/nix.sh"
+    NIX_SH_ENV_FILE="$HOME/.nix-profile/etc/profile.d/nix.sh"
+    NIX_FISH_ENV_FILE="$HOME/.nix-profile/etc/profile.d/nix.fish"
 fi
 
 mkdir -p ~/.wedge
